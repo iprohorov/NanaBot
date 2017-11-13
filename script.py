@@ -46,8 +46,8 @@ def getTagsToTxt(path,file):
         print(json.dumps(song_dict))
         print()
 file = open ("playlist.json","w")
-start_dir = input()
-#start_dir = "/media"
+#start_dir = input()
+start_dir = "/media"
 #start_dir = input()
 File_show(start_dir)
 print (dir)
