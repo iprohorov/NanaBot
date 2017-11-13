@@ -1,54 +1,55 @@
-from mutagen.id3 import ID3, ID3NoHeaderError 
-import os, sys 
-mypath = '/media/iprohorov/ESD-ISO' 
-def getTagsToTxt(path):
+from mutagen.id3 import ID3, ID3NoHeaderError
+import os , sys
+import json
+#dir = -1 ;
+def File_show (path):
+    global dir
+    out_path = -1
+    in_dir = os.listdir(path)
+    for i in in_dir:
+        if os.path.isdir(path + i) and  i != "Music":
+            print("It is the dir "+ os.path.abspath(path+i)+'\\')
+            File_show(os.path.abspath(path+i) +'\\')
+        elif i == "Music" and os.path.isdir(path + i):
+            dir = path + i
+#next def
+def getTagsToTxt(path,file):
     files = os.listdir(path)
     music = list(filter(lambda x: x.endswith('.mp3'), files))
-    file = open('parserchik.txt', 'w')
     for i in music:
-        print(i)
-	file.write("Name: ")
-	#file.write(path)
-	#file.write("/")
-        file.write(i + "\n")
+        song_dict = {}
+        song_dict['path']= path+i
+        print(path+i)
         try:
             audio = ID3(path + "/" + i)
         except ID3NoHeaderError:
             print(None)
             print()
-            file.write("-\n")
-            file.write("\n")
             continue
         try:
-            print("Artist: %s" % audio['TPE1'].text[0])
-            file.write("Artist: %s\n" % audio['TPE1'].text[0])
+            print(audio['TPE1'].text[0])
+            song_dict['name'] = audio['TPE1'].text[0]
         except KeyError:
             print(None)
-            file.write("Artist: -\n")
         try:
-            print("Track: %s" % audio["TIT2"].text[0])
-            file.write("Track: %s\n" % audio["TIT2"].text[0])
+            print(audio["TIT2"].text[0])
+            song_dict['track'] = audio["TIT2"].text[0]
         except KeyError:
             print(None)
-            file.write("Track: -\n")
         try:
-            print("Album: %s" % audio["TALB"].text[0])
-            file.write("Album: %s\n" % audio["TALB"].text[0])
+            print(audio["TALB"].text[0])
+            song_dict['album'] = audio["TALB"].text[0]
         except KeyError:
             print(None)
-            file.write("Album: -\n")
-        try:
-            print("Release Year: %s" % audio["TDRC"].text[0])
-            file.write("Release Year: %s\n" % audio["TDRC"].text[0])
-        except KeyError:
-            print(None)
-            file.write("Release Year: -\n")
         print()
-        file.write("\n")
-    file.close()
-path = "/media/iprohorov/" 
-if os.path.isdir(path):
-	dirs = os.listdir( path )
-# This would print all the files and directories
-        for file in dirs:
-                getTagsToTxt(path+file) 
+        file.write(json.dumps(song_dict))
+        print(json.dumps(song_dict))
+        print()
+file = open ("playlist.json","w")
+start_dir = input()
+#start_dir = "/media"
+#start_dir = input()
+File_show(start_dir)
+print (dir)
+getTagsToTxt(dir,file)
+file.close()
